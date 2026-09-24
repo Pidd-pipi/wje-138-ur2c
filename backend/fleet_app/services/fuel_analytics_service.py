@@ -1,5 +1,24 @@
-def list_fuel_records():
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
+from fleet_app.models import FuelRecord
+
+
+def list_fuel_records(vehicle_id=None):
+    queryset = FuelRecord.objects.select_related('vehicle').order_by('-date', '-id')
+    if vehicle_id:
+        queryset = queryset.filter(vehicle_id=vehicle_id)
     return [
-        {'id': 1, 'vehicleId': 1, 'date': '2026-06-05', 'liters': 240, 'unitPrice': 7.4, 'totalAmount': 1776, 'mileage': 88120, 'station': '青浦服务区', 'paymentMethod': 'Company'},
-        {'id': 2, 'vehicleId': 2, 'date': '2026-06-09', 'liters': 360, 'unitPrice': 7.35, 'totalAmount': 2646, 'mileage': 210100, 'station': '苏州东站', 'paymentMethod': 'Card'},
+        {
+            'id': record.id,
+            'vehicleId': record.vehicle_id,
+            'date': record.date.isoformat() if record.date else '',
+            'liters': record.liters,
+            'unitPrice': record.unit_price,
+            'totalAmount': record.total_amount,
+            'mileage': record.mileage,
+            'station': record.station,
+            'paymentMethod': record.payment_method,
+        }
+        for record in queryset
     ]

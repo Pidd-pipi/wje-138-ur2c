@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class Vehicle(models.Model):
     plate_no = models.CharField(max_length=32)
     vehicle_type = models.CharField(max_length=32)
@@ -12,6 +13,7 @@ class Vehicle(models.Model):
     tank_capacity = models.FloatField(default=0)
     fuel_consumption = models.FloatField(default=0)
 
+
 class Driver(models.Model):
     name = models.CharField(max_length=40)
     phone = models.CharField(max_length=32)
@@ -21,6 +23,7 @@ class Driver(models.Model):
     status = models.CharField(max_length=24)
     driving_hours = models.IntegerField(default=0)
     violation_count = models.IntegerField(default=0)
+
 
 class DispatchOrder(models.Model):
     order_no = models.CharField(max_length=40)
@@ -39,8 +42,9 @@ class DispatchOrder(models.Model):
     creator_id = models.IntegerField(default=1)
     note = models.TextField(blank=True)
 
+
 class MaintenanceRecord(models.Model):
-    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE)
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name='maintenance_records')
     maintenance_type = models.CharField(max_length=24)
     items = models.JSONField(default=list)
     cost = models.FloatField(default=0)
@@ -49,6 +53,13 @@ class MaintenanceRecord(models.Model):
     next_mileage = models.IntegerField(default=0)
     next_date = models.DateField(null=True)
     status = models.CharField(max_length=24)
+    # 预约时登记的预估费用，完工后写入 cost（最终费用）
+    estimated_cost = models.FloatField(default=0)
+    # 完工时登记的实际里程与最终费用
+    actual_mileage = models.IntegerField(null=True, blank=True)
+    started_at = models.DateTimeField(null=True, blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
 
 class FuelRecord(models.Model):
     vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE)
